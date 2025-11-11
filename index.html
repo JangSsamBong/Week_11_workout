@@ -53,7 +53,8 @@
             <!-- Navigation links will be dynamically loaded here -->
         </nav>
 
-        <div class="mt-10 pt-4 border-t border-blue-200">
+        <!-- mt-16으로 변경하여 네비게이션과의 간격을 확보했습니다. -->
+        <div class="mt-16 pt-4 border-t border-blue-200"> 
             <h3 class="text-lg font-semibold mb-2 text-gray-700">API Endpoints</h3>
             <div id="api-list" class="text-sm space-y-1 text-gray-600">
                 <!-- API links will be dynamically loaded here -->
@@ -115,6 +116,8 @@
             } 
             // 상세 페이지 렌더링
             else {
+                // Flask 서버에서 JSON_AS_ASCII=False를 설정했으므로, 
+                // 여기서 별도의 유니코드 디코딩 처리가 필요 없습니다.
                 const sectionData = data.data;
                 const title = data.title_ko;
                 
@@ -184,68 +187,4 @@
         // 페이지 로드 및 데이터 가져오기
         async function loadDataAndRender() {
             const pageKey = getCurrentPageKey();
-            const apiPath = pageKey === 'main' ? '/api/main' : `/api/${pageKey}`;
-            
-            try {
-                const response = await fetch(API_BASE_URL + apiPath);
-                if (!response.ok) throw new Error('API 응답 오류');
-                const data = await response.json();
-                
-                // 네비게이션 및 API 목록 렌더링 (메인 정보가 필요)
-                const mainResponse = await fetch(API_BASE_URL + '/api/main');
-                const mainData = await mainResponse.json();
-                renderNavigation(mainData, pageKey);
-
-                renderContent(pageKey, data);
-            } catch (error) {
-                console.error("데이터 로드 실패:", error);
-                document.getElementById('content-area').innerHTML = `
-                    <div class="text-center py-20 text-red-500">
-                        <h2 class="text-3xl font-bold mb-4">데이터 로드 실패</h2>
-                        <p>백엔드 API 서버(${API_BASE_URL}${apiPath})와의 통신에 문제가 발생했습니다.</p>
-                        <p class="mt-4">콘솔 로그를 확인해주세요.</p>
-                    </div>
-                `;
-            }
-        }
-
-        // 네비게이션 링크 및 API 엔드포인트 목록을 렌더링하는 함수
-        function renderNavigation(mainData, currentPageKey) {
-            const navContainer = document.getElementById('nav-container');
-            const apiList = document.getElementById('api-list');
-            
-            let navHtml = '';
-            
-            // 1. 메인 페이지 링크 추가
-            navHtml += `<a href="/" class="nav-link ${currentPageKey === 'main' ? 'active' : ''}">메인 페이지</a>`;
-
-            // 2. 기타 섹션 링크 추가
-            Object.keys(mainData.sections).forEach(key => {
-                const section = mainData.sections[key];
-                navHtml += `<a href="${section.path}" class="nav-link ${key === currentPageKey ? 'active' : ''}">
-                    ${section.title}
-                </a>`;
-            });
-            
-            navContainer.innerHTML = navHtml;
-
-            // 3. API 엔드포인트 목록 추가
-            apiList.innerHTML = mainData.api_endpoints.map(endpoint => `
-                <a href="${API_BASE_URL}${endpoint}" target="_blank" class="block text-blue-500 hover:text-blue-700 hover:underline">
-                    ${endpoint}
-                </a>
-            `).join('');
-            // main API 엔드포인트 추가
-            apiList.innerHTML += `<a href="${API_BASE_URL}/api/main" target="_blank" class="block text-blue-500 hover:text-blue-700 hover:underline">/api/main</a>`;
-
-        }
-
-
-        // 브라우저 뒤로/앞으로 가기 버튼을 눌렀을 때도 페이지를 다시 렌더링
-        window.onpopstate = loadDataAndRender;
-
-        // 초기 로드
-        window.onload = loadDataAndRender;
-    </script>
-</body>
-</html>
+            const apiPath = pageKey === 'main' ? '/api/main' : `/api/${
